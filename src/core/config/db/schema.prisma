@@ -1,0 +1,34 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("POSTGRES_PRISMA_URL") // uses connection pooling
+  directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
+}
+
+model User {
+  id        String   @default(cuid()) @id
+  name      String?
+  email     String?  @unique
+  messages  Message[]
+  chats     Chat[]   @relation("UserChats")
+}
+
+model Chat {
+  id        String   @default(cuid()) @id
+  name      String?
+  messages  Message[]
+  users     User[]   @relation("UserChats")
+}
+
+model Message {
+  id        String   @default(cuid()) @id
+  content   String
+  createdAt DateTime @default(now())
+  author    User     @relation(fields: [authorId], references: [id])
+  authorId  String
+  chat      Chat     @relation(fields: [chatId], references: [id])
+  chatId    String
+}
